@@ -1,0 +1,87 @@
+package com.lemon.table.util;
+
+
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import com.lemon.table.entity.CreateTableInfo;
+import com.lemon.table.entity.TableInfo;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * excel 工具类
+ */
+public class EasypoiUtil {
+
+
+    /**
+     * 生成excel 单页sheet
+     * @param clazz
+     * @param list
+     * @param path
+     */
+    public static  void  generateExcel(Class<?> clazz, List<?> list, String path){
+        Workbook workbook = ExcelExportUtil.exportExcel(new ExportParams(),clazz,list);
+        creaetFile(workbook,path);
+
+    }
+
+
+    /**
+     * 一个excel 多个sheet页
+     * @param map
+     * @param path
+     */
+    public static void generateMultipleSheet(Map<String,List> map,String path){
+        List<Map<String,Object>> sheetList = new ArrayList<>();
+        map.forEach((k,v) ->{
+            ExportParams params = new ExportParams();
+            Map<String,Object> dataMap = new HashMap<>();
+            if("TableInfo".equals(k)){
+               dataMap.put("entity", TableInfo.class);
+            }else{
+               dataMap.put("entity", CreateTableInfo.class);
+            }
+            params.setSheetName(k);
+            dataMap.put("title",params);
+            dataMap.put("data",v);
+
+            sheetList.add(dataMap);
+        });
+        Workbook workbook = ExcelExportUtil.exportExcel(sheetList, ExcelType.HSSF);
+        creaetFile(workbook,path);
+
+    }
+
+    private static void creaetFile(Workbook workbook,String path){
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(path);
+            workbook.write(fos);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(fos != null){
+                    fos.close();
+                }
+                if(workbook != null){
+                    workbook.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+}
