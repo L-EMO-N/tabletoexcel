@@ -1,0 +1,91 @@
+package com.huawei.epidemic.util;
+
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class ExcelExportEntityUtil {
+
+    public static void main(String[] args) {
+        // 表头定义 可以将表头配置在数据库中，然后在代码里动态生成表头
+        // 这里只是展示如何用代码生成表头
+        List<ExcelExportEntity> columnList = new ArrayList<ExcelExportEntity>();
+        ExcelExportEntity colEntity1 = new ExcelExportEntity("number", "number");
+        colEntity1.setNeedMerge(true);
+        columnList.add(colEntity1);
+
+        ExcelExportEntity colEntity2 = new ExcelExportEntity("name", "name");
+        colEntity2.setNeedMerge(true);
+        columnList.add(colEntity2);
+
+        ExcelExportEntity score = new ExcelExportEntity("score", "score");
+        List<ExcelExportEntity> yyxxList = new ArrayList<ExcelExportEntity>();
+        yyxxList.add(new ExcelExportEntity("Chinese", "chinese"));
+        yyxxList.add(new ExcelExportEntity("Math", "math"));
+        yyxxList.add(new ExcelExportEntity("English", "english"));
+        score.setList(yyxxList);
+        columnList.add(score);
+
+
+        ExcelExportEntity score1 = new ExcelExportEntity("score1","score1");
+        List<ExcelExportEntity> yyxxList1 = new ArrayList<ExcelExportEntity>();
+        yyxxList1.add(new ExcelExportEntity("Chinese", "chinese"));
+        yyxxList1.add(new ExcelExportEntity("Math", "math"));
+        yyxxList1.add(new ExcelExportEntity("English", "english"));
+        score1.setList(yyxxList1);
+        columnList.add(score1);
+
+
+
+        // 数据拉取 一般需要从数据库中拉取
+        // 这里是手动模拟数据
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        for (int i = 0; i < 10; i++) {
+            Map<String, Object> values = new HashMap<>();
+            values.put("number", i);
+            values.put("name", "张三" + i);
+
+            List<Map<String, Object>> yhxxList = new ArrayList<Map<String, Object>>();
+            Map<String, Object> yhxxMap = new HashMap<String, Object>();
+            yhxxMap.put("chinese",  i);
+            yhxxMap.put("math",  i);
+            yhxxMap.put("english",i);
+            yhxxList.add(yhxxMap);
+
+
+            values.put("score", yhxxList);
+
+            List<Map<String,Object>> scoreList =  new ArrayList<>();
+            Map<String,Object> scoreMap = new HashMap<>();
+            scoreMap.put("chinese",i*10);
+            scoreMap.put("math",i*10);
+            scoreMap.put("english",i*10);
+            scoreList.add(scoreMap);
+            values.put("score1",scoreList);
+            dataList.add(values);
+        }
+
+        // 定义标题和sheet名称
+        ExportParams exportParams = new ExportParams(null, "学生成绩");
+        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, columnList, dataList);
+        // 导入到本地目录
+        FileOutputStream fos  = null;
+        try {
+            fos = new FileOutputStream("D:\\excel\\班级信息.xls");
+            workbook.write(fos);
+            workbook.close();
+            fos.close();
+            System.out.println("生成成功！！！！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
